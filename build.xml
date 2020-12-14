@@ -1,0 +1,62 @@
+
+<!-- Project that builds,compile,generates javadoc and creates jar files-->
+<project name="project" default="main" basedir=".">
+	<!-- Defining properties to be used -->
+	<property name="src.dir" value="src"/>
+	<property name="doc.dir" value="build/docs"/>
+	<property name="lib.dir" value="build/jar"/>
+	<property name="build.dir" value="build"/>
+	<input message="Enter filename of java to compile: " addproperty="java-file"/>
+
+<!-- Deletes all generated stuff -->
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<!--This code will build and compile the java class -->
+    <target name="build" description="compile java files">
+            <mkdir dir="${build.dir}/classes"/>
+            <javac sourcepath="" srcdir="${src.dir}"
+            destdir="${build.dir}/classes"
+            classpath="${build.dir}/classes"
+            includeantruntime="false"
+            fork="true">
+        </javac>
+    </target>
+
+<!--This code will generate javadoc for all the java files.  -->
+	<target name="doc" description="generate java documentation for all java files" 
+		depends="build">
+		<mkdir dir="${doc.dir}"/>
+		<javadoc destdir="${doc.dir}">
+			<fileset dir="${src.dir}"
+				excludes="${java-file}.java"/>
+		</javadoc>
+	</target>
+
+<!-- After generating javadoc, this will be executed next, it generates a jar file of the java main class, and javadoc. -->
+	<target name="jar" depends="doc" description="generate jar files for all java files">
+		<mkdir dir="${lib.dir}"/>
+		<!-- Jar file for main class. -->
+		<jar destfile="${lib.dir}/${java-file}.jar">
+			<fileset dir="${build.dir}/classes"/>
+			<manifest>
+				<attribute name="Main-Class" value="${java-file}"/>
+			</manifest>
+			<!-- Jar file for javadoc-->
+		</jar>
+<jar destfile="${lib.dir}/${java-file}-javadoc.jar">
+			<fileset dir="${doc.dir}"/>
+			
+		</jar>
+	</target>
+<!-- This will execute the application -->
+	<target name="run" depends="jar">
+		<java jar="${lib.dir}/${java-file}.jar" fork="true"/>
+	</target>
+<!-- This will clean the build-->
+	<target name="clean-build" depends="clean,jar"/>
+<!-- This will execute the run and clean code-->
+	<target name="main" depends="clean,run"/>
+
+</project>
